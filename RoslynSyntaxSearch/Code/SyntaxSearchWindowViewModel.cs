@@ -26,6 +26,7 @@ namespace RoslynSyntaxSearch.Code
 		public ObservableCollection<SyntaxSearchResultViewModel> SearchResults { get; } = new ObservableCollection<SyntaxSearchResultViewModel>();
 
 		private SyntaxTypeViewModel _selectedSyntax;
+
 		public SyntaxTypeViewModel SelectedSyntax
 		{
 			get => _selectedSyntax;
@@ -35,6 +36,19 @@ namespace RoslynSyntaxSearch.Code
 				{
 					_selectedSyntax = value;
 					UpdateSearchResults();
+				}
+			}
+		}
+
+		private SyntaxSearchResultViewModel _selectedResult;
+		public SyntaxSearchResultViewModel SelectedResult
+		{
+			get => _selectedResult; set
+			{
+				if (_selectedResult != value)
+				{
+					_selectedResult = value;
+					OnSelectedResultChanged();
 				}
 			}
 		}
@@ -67,17 +81,22 @@ namespace RoslynSyntaxSearch.Code
 			);
 		}
 
+		private void OnSelectedResultChanged()
+		{
+			SyntaxSearchEngine.Instance.NavigateToNode(SelectedResult.SyntaxNode);
+		}
+
 		public class SyntaxSearchResultViewModel
 		{
-			private readonly SyntaxNode syntaxNode;
+			public SyntaxNode SyntaxNode { get; }
 
 			public SyntaxSearchResultViewModel(SyntaxNode syntaxNode)
 			{
-				this.syntaxNode = syntaxNode;
+				this.SyntaxNode = syntaxNode;
 			}
-			public string FileName => syntaxNode.GetLocation().GetLineSpan().Path;
+			public string FileName => SyntaxNode.GetLocation().GetLineSpan().Path;
 
-			public string SyntaxString => syntaxNode.GetText().ToString();
+			public string SyntaxString => SyntaxNode.GetText().ToString();
 		}
 	}
 }

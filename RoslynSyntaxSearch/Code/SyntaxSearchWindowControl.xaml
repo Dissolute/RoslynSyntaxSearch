@@ -12,21 +12,18 @@
 			 Name="MyToolWindow">
 	<Grid>
 		<Grid.RowDefinitions>
-			<RowDefinition Height="Auto" />
 			<RowDefinition Height="*" />
 			<RowDefinition Height="*" />
 		</Grid.RowDefinitions>
-		<TextBlock Margin="10"
-				   HorizontalAlignment="Center"
-				   Grid.Row="0">Syntax Search</TextBlock>
 		<ListView Margin="10"
 				  ItemsSource="{Binding SyntaxTypes}"
 				  DisplayMemberPath="Name"
 				  SelectedItem="{Binding SelectedSyntax, Mode=TwoWay}"
-				  Grid.Row="1"/>
+				  Grid.Row="0"/>
 		<ListView Margin="10"
 				  ItemsSource="{Binding SearchResults}"
-				  Grid.Row="2">
+				  SelectedItem="{Binding SelectedResult, Mode=TwoWay}"
+				  Grid.Row="1">
 			<ListView.ItemTemplate>
 				<DataTemplate>
 					<TextBlock>

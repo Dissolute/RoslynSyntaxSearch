@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.LanguageServices;
+using Microsoft.VisualStudio.Shell;
 
 namespace RoslynSyntaxSearch.Code
 {
@@ -26,8 +27,8 @@ namespace RoslynSyntaxSearch.Code
 				if (_workspace == null)
 				{
 
-					var componentModel = (IComponentModel)Microsoft.VisualStudio.Shell.Package.GetGlobalService(typeof(SComponentModel));
-					_workspace = componentModel.GetService<Microsoft.VisualStudio.LanguageServices.VisualStudioWorkspace>();
+					var componentModel = (IComponentModel)Package.GetGlobalService(typeof(SComponentModel));
+					_workspace = componentModel.GetService<VisualStudioWorkspace>();
 
 				}
 
@@ -68,5 +69,28 @@ namespace RoslynSyntaxSearch.Code
 			return results;
 		}
 
+		public void NavigateToNode(SyntaxNode syntaxNode)
+		{
+			var solution = Workspace.CurrentSolution;
+
+			var docId = solution.GetDocumentId(syntaxNode.SyntaxTree);
+
+			if (docId == null)
+			{
+				return;
+			}
+
+			Workspace.OpenDocument(docId);
+
+			var dte = (EnvDTE.DTE)Package.GetGlobalService(typeof(EnvDTE.DTE));
+
+			var span = syntaxNode.GetLocation().GetLineSpan();
+
+			var selection = dte.ActiveDocument.Selection as EnvDTE.TextSelection;
+
+			// DTE LinePositions are 1-based (!)
+			selection.MoveToLineAndOffset(span.StartLinePosition.Line + 1, span.StartLinePosition.Character + 1);
+			selection.MoveToLineAndOffset(span.EndLinePosition.Line + 1, span.EndLinePosition.Character + 1, Extend: true);
+		}
 	}
 }
