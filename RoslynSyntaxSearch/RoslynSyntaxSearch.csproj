@@ -64,6 +64,7 @@
     <Compile Include="Code\SyntaxSearchWindowPackage.cs" />
     <Compile Include="Code\SyntaxSearchWindowViewModel.cs" />
     <Compile Include="Code\SyntaxTypeViewModel.cs" />
+    <Compile Include="Code\ViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

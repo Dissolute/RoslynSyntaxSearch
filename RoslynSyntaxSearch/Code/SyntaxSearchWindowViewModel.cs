@@ -12,7 +12,7 @@ using Microsoft.CodeAnalysis;
 
 namespace RoslynSyntaxSearch.Code
 {
-	public class SyntaxSearchWindowViewModel
+	public class SyntaxSearchWindowViewModel : ViewModel
 	{
 		private readonly SerialDisposable _searchSubscription = new SerialDisposable();
 		public SyntaxSearchWindowViewModel()
@@ -41,6 +41,7 @@ namespace RoslynSyntaxSearch.Code
 		}
 
 		private SyntaxSearchResultViewModel _selectedResult;
+
 		public SyntaxSearchResultViewModel SelectedResult
 		{
 			get => _selectedResult; set
@@ -50,6 +51,16 @@ namespace RoslynSyntaxSearch.Code
 					_selectedResult = value;
 					OnSelectedResultChanged();
 				}
+			}
+		}
+
+		private string _searchResultSummary = "";
+		public string SearchResultSummary
+		{
+			get => _searchResultSummary;
+			set
+			{
+				SetPropertyField(ref _searchResultSummary, value);
 			}
 		}
 
@@ -63,7 +74,10 @@ namespace RoslynSyntaxSearch.Code
 		private async Task UpdateSearchResults(CancellationToken ct)
 		{
 			if (ct.IsCancellationRequested) { return; }
+
 			await Application.Current.Dispatcher.InvokeAsync(() => SearchResults.Clear(), DispatcherPriority.Normal, ct);
+
+			SearchResultSummary = "Searching...";
 
 			var results = await SyntaxSearchEngine.Instance.GetNodesOfType(ct, SelectedSyntax.Type);
 
@@ -75,6 +89,8 @@ namespace RoslynSyntaxSearch.Code
 				{
 					SearchResults.Add(new SyntaxSearchResultViewModel(result));
 				}
+
+				SearchResultSummary = $"{SearchResults.Count} result(s).";
 			},
 				DispatcherPriority.Normal,
 				ct

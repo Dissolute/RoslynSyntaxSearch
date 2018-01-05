@@ -17,12 +17,13 @@ namespace RoslynSyntaxSearch.Code
 		public int InheritanceDepth { get; }
 		public Type Type { get; }
 
-		public string Name => $"{GetSpaces(InheritanceDepth * 4)} {Type.Name}";
+		public string Name => $"{GetSpaces(InheritanceDepth * 2)} {Type.Name}";
 
 		private static string GetSpaces(int numberOfSpaces)
 		{
 			//const string spaces = "                                                                 ";
-			const string spaces = "--->--->--->--->--->--->--->--->--->--->";
+			//const string spaces = "--->--->--->--->--->--->--->--->--->--->";
+			const string spaces = " > > > > > > > > > > > > > >";
 			return spaces.Substring(0, numberOfSpaces);
 		}
 	}
