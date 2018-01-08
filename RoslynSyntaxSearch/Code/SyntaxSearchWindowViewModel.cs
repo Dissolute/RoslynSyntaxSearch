@@ -15,18 +15,21 @@ namespace RoslynSyntaxSearch.Code
 	public class SyntaxSearchWindowViewModel : ViewModel
 	{
 		private readonly SerialDisposable _searchSubscription = new SerialDisposable();
+		private readonly SyntaxSearchEngine _engine;
+
 		public SyntaxSearchWindowViewModel()
 		{
 			var tree = new InheritanceTree(typeof(Microsoft.CodeAnalysis.CSharp.CSharpSyntaxNode));
 			var nodes = tree.GetTreeNodes();
 			SyntaxTypes = nodes.Select(n => new SyntaxTypeViewModel(n.depth, n.type)).ToArray();
+
+			_engine = new SyntaxSearchEngine(tree);
 		}
 		public SyntaxTypeViewModel[] SyntaxTypes { get; }
 
 		public ObservableCollection<SyntaxSearchResultViewModel> SearchResults { get; } = new ObservableCollection<SyntaxSearchResultViewModel>();
 
 		private SyntaxTypeViewModel _selectedSyntax;
-
 		public SyntaxTypeViewModel SelectedSyntax
 		{
 			get => _selectedSyntax;
@@ -79,7 +82,7 @@ namespace RoslynSyntaxSearch.Code
 
 			SearchResultSummary = "Searching...";
 
-			var results = await SyntaxSearchEngine.Instance.GetNodesOfType(ct, SelectedSyntax.Type);
+			var results = await _engine.GetNodesOfType(ct, SelectedSyntax.Type);
 
 			if (ct.IsCancellationRequested) { return; }
 
@@ -99,7 +102,7 @@ namespace RoslynSyntaxSearch.Code
 
 		private void OnSelectedResultChanged()
 		{
-			SyntaxSearchEngine.Instance.NavigateToNode(SelectedResult.SyntaxNode);
+			_engine.NavigateToNode(SelectedResult.SyntaxNode);
 		}
 
 		public class SyntaxSearchResultViewModel

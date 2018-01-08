@@ -50,5 +50,7 @@ namespace RoslynSyntaxSearch.Code
 				}
 			}
 		}
+
+		public IEnumerable<Type> GetSubtree(Type rootType) => GetTreeNodes(rootType, 0).Select(tuple => tuple.type);
 	}
 }

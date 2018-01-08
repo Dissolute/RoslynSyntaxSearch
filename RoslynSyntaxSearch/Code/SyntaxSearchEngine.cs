@@ -13,10 +13,13 @@ namespace RoslynSyntaxSearch.Code
 {
 	public class SyntaxSearchEngine
 	{
-		public static SyntaxSearchEngine Instance { get; } = new SyntaxSearchEngine();
-		private SyntaxSearchEngine()
-		{
 
+		private readonly InheritanceTree _typeTree;
+		private SyntaxNodeCache _cache;
+
+		public SyntaxSearchEngine(InheritanceTree typeTree)
+		{
+			_typeTree = typeTree;
 		}
 
 		private VisualStudioWorkspace _workspace;
@@ -36,9 +39,10 @@ namespace RoslynSyntaxSearch.Code
 			}
 		}
 
-		public async Task<IEnumerable<SyntaxNode>> GetNodesOfType(CancellationToken ct, Type type)
+		public async System.Threading.Tasks.Task Refresh(CancellationToken ct)
 		{
-			if (ct.IsCancellationRequested) { return null; }
+
+			if (ct.IsCancellationRequested) { return; }
 
 			var solution = Workspace.CurrentSolution;
 
@@ -48,25 +52,38 @@ namespace RoslynSyntaxSearch.Code
 			{
 				var compilation = await project.GetCompilationAsync(ct);
 
-				if (ct.IsCancellationRequested) { return results; }
+				if (ct.IsCancellationRequested) { return; }
 
 				foreach (var syntaxTree in compilation.SyntaxTrees)
 				{
 					var root = await syntaxTree.GetRootAsync(ct);
 
-					if (ct.IsCancellationRequested) { return results; }
+					if (ct.IsCancellationRequested) { return; }
 
 					foreach (var node in root.DescendantNodesAndSelf(descendIntoTrivia: true))
 					{
-						if (type.IsAssignableFrom(node.GetType()))
-						{
-							results.Add(node);
-						}
+						results.Add(node);
 					}
 				}
 			}
 
-			return results;
+			_cache = new SyntaxNodeCache(_typeTree, results);
+
+			return;
+		}
+
+		public async Task<IEnumerable<SyntaxNode>> GetNodesOfType(CancellationToken ct, Type type)
+		{
+			if (ct.IsCancellationRequested) { return null; }
+
+			if (_cache == null)
+			{
+				await Refresh(ct);
+			}
+
+			if (ct.IsCancellationRequested) { return null; }
+
+			return _cache.GetSyntaxNodesOfType(type);
 		}
 
 		public void NavigateToNode(SyntaxNode syntaxNode)

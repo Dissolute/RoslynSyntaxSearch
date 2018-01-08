@@ -55,6 +55,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Code\InheritanceTree.cs" />
+    <Compile Include="Code\SyntaxNodeCache.cs" />
     <Compile Include="Code\SyntaxSearchEngine.cs" />
     <Compile Include="Code\SyntaxSearchWindow.cs" />
     <Compile Include="Code\SyntaxSearchWindowCommand.cs" />
