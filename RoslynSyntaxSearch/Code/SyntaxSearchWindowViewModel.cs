@@ -27,7 +27,12 @@ namespace RoslynSyntaxSearch.Code
 		}
 		public SyntaxTypeViewModel[] SyntaxTypes { get; }
 
-		public ObservableCollection<SyntaxSearchResultViewModel> SearchResults { get; } = new ObservableCollection<SyntaxSearchResultViewModel>();
+		private IList<SyntaxSearchResultViewModel> _searchResults;
+		public IList<SyntaxSearchResultViewModel> SearchResults
+		{
+			get => _searchResults;
+			private set => SetPropertyField(ref _searchResults, value);
+		}
 
 		private SyntaxTypeViewModel _selectedSyntax;
 		public SyntaxTypeViewModel SelectedSyntax
@@ -58,6 +63,7 @@ namespace RoslynSyntaxSearch.Code
 		}
 
 		private string _searchResultSummary = "";
+
 		public string SearchResultSummary
 		{
 			get => _searchResultSummary;
@@ -78,7 +84,7 @@ namespace RoslynSyntaxSearch.Code
 		{
 			if (ct.IsCancellationRequested) { return; }
 
-			await Application.Current.Dispatcher.InvokeAsync(() => SearchResults.Clear(), DispatcherPriority.Normal, ct);
+			SearchResults = null;
 
 			SearchResultSummary = "Searching...";
 
@@ -86,18 +92,27 @@ namespace RoslynSyntaxSearch.Code
 
 			if (ct.IsCancellationRequested) { return; }
 
-			await Application.Current.Dispatcher.InvokeAsync(() =>
-			{
-				foreach (var result in results)
-				{
-					SearchResults.Add(new SyntaxSearchResultViewModel(result));
-				}
+			UpdateResultsCounts();
 
-				SearchResultSummary = $"{SearchResults.Count} result(s).";
-			},
-				DispatcherPriority.Normal,
-				ct
-			);
+			var resultsVM = new List<SyntaxSearchResultViewModel>();
+
+			foreach (var result in results)
+			{
+				resultsVM.Add(new SyntaxSearchResultViewModel(result));
+			}
+
+			SearchResults = resultsVM;
+
+			SearchResultSummary = $"{SearchResults.Count} result(s).";
+
+		}
+
+		private void UpdateResultsCounts()
+		{
+			foreach (var svm in SyntaxTypes)
+			{
+				svm.ResultCount = _engine.GetTypeCount(svm.Type);
+			}
 		}
 
 		private void OnSelectedResultChanged()

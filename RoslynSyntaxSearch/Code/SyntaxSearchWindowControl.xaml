@@ -18,9 +18,16 @@
 		</Grid.RowDefinitions>
 		<ListView Margin="10"
 				  ItemsSource="{Binding SyntaxTypes}"
-				  DisplayMemberPath="Name"
 				  SelectedItem="{Binding SelectedSyntax, Mode=TwoWay}"
-				  Grid.Row="0" />
+				  Grid.Row="0">
+			<ListView.ItemTemplate>
+				<DataTemplate>
+					<TextBlock>
+						<Run Text="{Binding Name, Mode=OneWay}" /><Run Text=" " /><Run Text="{Binding ResultCount, Mode=OneWay}" /><Run Text=" nodes" />
+					</TextBlock>
+				</DataTemplate>
+			</ListView.ItemTemplate>
+		</ListView>
 		<TextBlock Text="{Binding SearchResultSummary, Mode=OneWay}"
 				   Grid.Row="1" />
 		<ListView Margin="10"

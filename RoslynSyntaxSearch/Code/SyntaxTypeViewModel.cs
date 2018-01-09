@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace RoslynSyntaxSearch.Code
 {
-	public class SyntaxTypeViewModel
+	public class SyntaxTypeViewModel : ViewModel
 	{
 		public SyntaxTypeViewModel(int inheritanceDepth, Type type)
 		{
@@ -16,6 +16,13 @@ namespace RoslynSyntaxSearch.Code
 
 		public int InheritanceDepth { get; }
 		public Type Type { get; }
+
+		private int? _resultCount;
+		public int? ResultCount
+		{
+			get => _resultCount;
+			set => SetPropertyField(ref _resultCount, value);
+		}
 
 		public string Name => $"{GetSpaces(InheritanceDepth * 2)} {Type.Name}";
 

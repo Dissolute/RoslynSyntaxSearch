@@ -109,5 +109,7 @@ namespace RoslynSyntaxSearch.Code
 			selection.MoveToLineAndOffset(span.StartLinePosition.Line + 1, span.StartLinePosition.Character + 1);
 			selection.MoveToLineAndOffset(span.EndLinePosition.Line + 1, span.EndLinePosition.Character + 1, Extend: true);
 		}
+
+		public int GetTypeCount(Type nodeType) => _cache.GetTypeCount(nodeType);
 	}
 }
